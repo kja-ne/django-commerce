@@ -3,5 +3,18 @@
 {% block body %}
     <h2>Active Listings</h2>
 
-    TODO
+    {% for listing in listings %}
+        <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+            <h3>{{ listing.title }}</h3>
+            <p>{{ listing.description }}</p>
+            <p><strong>Price:</strong> ${{ listing.current_price }}</p>
+
+            {% if listing.image_url %}
+                <img src="{{ listing.image_url }}" width="200">
+            {% endif %}
+        </div>
+    {% empty %}
+        <p>No active listings yet.</p>
+    {% endfor %}
+
 {% endblock %}
