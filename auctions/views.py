@@ -7,6 +7,9 @@ from django.urls import reverse
 from .models import User
 from .models import Listing
 
+from .forms import ListingForm
+from django.contrib.auth.decorators import login_required
+
 def index(request):
     listings = Listing.objects.filter(is_active=True)
 
@@ -64,3 +67,28 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
+    
+
+@login_required
+def create_listing(request):
+    if request.method == "POST":
+        form = ListingForm(request.POST)
+
+        if form.is_valid():
+            listing = form.save(commit=False)
+
+            listing.created_by = request.user
+            listing.current_price = listing.starting_bid
+            listing.is_active = True
+
+            listing.save()
+            form.save_m2m()
+
+            return redirect("index")
+
+    else:
+        form = ListingForm()
+
+    return render(request, "auctions/create_listing.html", {
+        "form": form
+    })
