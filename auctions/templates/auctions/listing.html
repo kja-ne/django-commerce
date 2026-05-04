@@ -1,0 +1,23 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+<h2>{{ listing.title }}</h2>
+
+<p>{{ listing.description }}</p>
+
+<p><strong>Price:</strong> ${{ listing.current_price }}</p>
+
+{% if listing.image_url %}
+    <img src="{{ listing.image_url }}" width="300">
+{% endif %}
+
+<p>Created by: {{ listing.created_by }}</p>
+
+{% if listing.is_active %}
+    <p style="color:green;">Active</p>
+{% else %}
+    <p style="color:red;">Closed</p>
+{% endif %}
+
+{% endblock %}

@@ -10,6 +10,8 @@ from .models import Listing
 from .forms import ListingForm
 from django.contrib.auth.decorators import login_required
 
+from django.shortcuts import get_object_or_404
+
 def index(request):
     listings = Listing.objects.filter(is_active=True)
 
@@ -91,4 +93,12 @@ def create_listing(request):
 
     return render(request, "auctions/create_listing.html", {
         "form": form
+    })
+
+
+def listing_detail(request, listing_id):
+    listing = get_object_or_404(Listing, pk=listing_id)
+
+    return render(request, "auctions/listing.html", {
+        "listing": listing
     })
