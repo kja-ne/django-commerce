@@ -136,3 +136,24 @@ def listing_detail(request, listing_id):
         "form": form,
         "message": message
     })
+
+
+@login_required
+def toggle_watchlist(request, listing_id):
+    listing = get_object_or_404(Listing, pk=listing_id)
+
+    if request.user in listing.watchlist.all():
+        listing.watchlist.remove(request.user)
+    else:
+        listing.watchlist.add(request.user)
+
+    return HttpResponseRedirect(reverse("listing_detail", args=[listing_id]))
+
+
+@login_required
+def watchlist(request):
+    listings = request.user.watchlist.all()
+
+    return render(request, "auctions/watchlist.html", {
+        "listings": listings
+    })

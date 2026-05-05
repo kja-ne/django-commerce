@@ -3,6 +3,19 @@
 {% block body %}
 
 <h2>{{ listing.title }}</h2>
+{% if user.is_authenticated %}
+
+    <form action="{% url 'toggle_watchlist' listing.id %}" method="POST">
+        {% csrf_token %}
+
+        {% if user in listing.watchlist.all %}
+            <button type="submit">Remove from Watchlist</button>
+        {% else %}
+            <button type="submit">Add to Watchlist</button>
+        {% endif %}
+    </form>
+
+{% endif %}
 
 <p>{{ listing.description }}</p>
 
