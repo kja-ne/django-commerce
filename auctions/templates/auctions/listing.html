@@ -49,6 +49,28 @@
     <p style="color:red;">Closed</p>
 {% endif %}
 
+{% if user == listing.created_by and listing.is_active %}
+    <form action="{% url 'close_auction' listing.id %}" method="POST">
+        {% csrf_token %}
+        <button type="submit">Close Auction</button>
+    </form>
+{% endif %}
+
+{% if not listing.is_active %}
+    <h3>Auction Closed</h3>
+
+    {% if listing.winner %}
+        <p>Winner: {{ listing.winner }}</p>
+
+        {% if user == listing.winner %}
+            <p style="color:green;">🎉 You won this auction!</p>
+        {% endif %}
+
+    {% else %}
+        <p>No bids were placed.</p>
+    {% endif %}
+{% endif %}
+
 
 
 <h3>Comments</h3>

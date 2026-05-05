@@ -17,6 +17,8 @@ from .forms import BidForm, CommentForm
 
 from .models import Category
 
+from django.contrib.auth.decorators import login_required
+
 def index(request):
     listings = Listing.objects.filter(is_active=True)
 
@@ -188,3 +190,22 @@ def category_listings(request, category_id):
         "category": category,
         "listings": listings
     })
+
+
+@login_required
+def close_auction(request, listing_id):
+    listing = get_object_or_404(Listing, pk=listing_id)
+
+    # only creator can close
+    if request.user == listing.created_by:
+
+        # get highest bid
+        highest_bid = listing.bids.order_by('-amount').first()
+
+        if highest_bid:
+            listing.winner = highest_bid.user
+
+        listing.is_active = False
+        listing.save()
+
+    return HttpResponseRedirect(reverse("listing_detail", args=[listing_id]))
