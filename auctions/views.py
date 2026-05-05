@@ -12,6 +12,9 @@ from django.contrib.auth.decorators import login_required
 
 from django.shortcuts import get_object_or_404
 
+from .models import Listing, Bid
+from .forms import BidForm
+
 def index(request):
     listings = Listing.objects.filter(is_active=True)
 
@@ -98,7 +101,38 @@ def create_listing(request):
 
 def listing_detail(request, listing_id):
     listing = get_object_or_404(Listing, pk=listing_id)
+    form = BidForm()
+
+    message = None
+
+    if request.method == "POST":
+        form = BidForm(request.POST)
+
+        if form.is_valid():
+            bid_amount = form.cleaned_data["amount"]
+
+            # 🔥 validation
+            if bid_amount < listing.starting_bid:
+                message = "Bid must be at least the starting bid."
+
+            elif bid_amount <= listing.current_price:
+                message = "Bid must be higher than current price."
+
+            else:
+                # save bid
+                bid = form.save(commit=False)
+                bid.user = request.user
+                bid.listing = listing
+                bid.save()
+
+                # update listing price
+                listing.current_price = bid_amount
+                listing.save()
+
+                message = "Bid placed successfully!"
 
     return render(request, "auctions/listing.html", {
-        "listing": listing
+        "listing": listing,
+        "form": form,
+        "message": message
     })

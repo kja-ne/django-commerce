@@ -12,6 +12,22 @@
     <img src="{{ listing.image_url }}" width="300">
 {% endif %}
 
+{% if user.is_authenticated and listing.is_active %}
+
+    <h3>Place a Bid</h3>
+
+    {% if message %}
+        <p style="color:red;">{{ message }}</p>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit Bid</button>
+    </form>
+
+{% endif %}
+
 <p>Created by: {{ listing.created_by }}</p>
 
 {% if listing.is_active %}
