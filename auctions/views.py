@@ -12,8 +12,10 @@ from django.contrib.auth.decorators import login_required
 
 from django.shortcuts import get_object_or_404
 
-from .models import Listing, Bid
-from .forms import BidForm
+from .models import Listing, Bid, Comment
+from .forms import BidForm, CommentForm
+
+from .models import Category
 
 def index(request):
     listings = Listing.objects.filter(is_active=True)
@@ -101,42 +103,55 @@ def create_listing(request):
 
 def listing_detail(request, listing_id):
     listing = get_object_or_404(Listing, pk=listing_id)
-    form = BidForm()
+
+    bid_form = BidForm()
+    comment_form = CommentForm()
 
     message = None
 
     if request.method == "POST":
-        form = BidForm(request.POST)
 
-        if form.is_valid():
-            bid_amount = form.cleaned_data["amount"]
+        # 🔥 BIDDING
+        if "bid_submit" in request.POST:
+            bid_form = BidForm(request.POST)
 
-            # 🔥 validation
-            if bid_amount < listing.starting_bid:
-                message = "Bid must be at least the starting bid."
+            if bid_form.is_valid():
+                bid_amount = bid_form.cleaned_data["amount"]
 
-            elif bid_amount <= listing.current_price:
-                message = "Bid must be higher than current price."
+                if bid_amount < listing.starting_bid:
+                    message = "Bid must be at least the starting bid."
 
-            else:
-                # save bid
-                bid = form.save(commit=False)
-                bid.user = request.user
-                bid.listing = listing
-                bid.save()
+                elif bid_amount <= listing.current_price:
+                    message = "Bid must be higher than current price."
 
-                # update listing price
-                listing.current_price = bid_amount
-                listing.save()
+                else:
+                    bid = bid_form.save(commit=False)
+                    bid.user = request.user
+                    bid.listing = listing
+                    bid.save()
 
-                message = "Bid placed successfully!"
+                    listing.current_price = bid_amount
+                    listing.save()
+
+                    message = "Bid placed successfully!"
+
+        # 💬 COMMENTS
+        elif "comment_submit" in request.POST:
+            comment_form = CommentForm(request.POST)
+
+            if comment_form.is_valid():
+                comment = comment_form.save(commit=False)
+                comment.user = request.user
+                comment.listing = listing
+                comment.save()
 
     return render(request, "auctions/listing.html", {
         "listing": listing,
-        "form": form,
-        "message": message
+        "bid_form": bid_form,
+        "comment_form": comment_form,
+        "message": message,
+        "comments": listing.comments.all()
     })
-
 
 @login_required
 def toggle_watchlist(request, listing_id):
@@ -156,4 +171,11 @@ def watchlist(request):
 
     return render(request, "auctions/watchlist.html", {
         "listings": listings
+    })
+
+def categories(request):
+    categories = Category.objects.all()
+
+    return render(request, "auctions/categories.html", {
+        "categories": categories
     })

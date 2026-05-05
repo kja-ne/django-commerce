@@ -35,8 +35,8 @@
 
     <form method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Submit Bid</button>
+        {{ bid_form.as_p }}
+    <button type="submit" name="bid_submit">Submit Bid</button>
     </form>
 
 {% endif %}
@@ -48,5 +48,29 @@
 {% else %}
     <p style="color:red;">Closed</p>
 {% endif %}
+
+
+
+<h3>Comments</h3>
+
+{% if user.is_authenticated %}
+    <form method="POST">
+        {% csrf_token %}
+        {{ comment_form.as_p }}
+        <button type="submit" name="comment_submit">Add Comment</button>
+    </form>
+{% endif %}
+
+{% for comment in comments %}
+    <div style="border:1px solid #ccc; margin:5px; padding:5px;">
+        <strong>{{ comment.user }}</strong>
+        <p>{{ comment.content }}</p>
+        <small>{{ comment.timestamp }}</small>
+    </div>
+{% empty %}
+    <p>No comments yet.</p>
+{% endfor %}
+
+
 
 {% endblock %}
