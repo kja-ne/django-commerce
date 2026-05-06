@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 
 
 class User(AbstractUser):
@@ -23,6 +24,7 @@ class Listing(models.Model):
     
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings")
+    created_at = models.DateTimeField(auto_now_add=True)
 
     watchlist = models.ManyToManyField(User, blank=True, related_name="watchlist")
 

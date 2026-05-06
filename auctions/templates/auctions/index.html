@@ -13,12 +13,12 @@
                 {% endif %}   
             </div>
             <div class="col-md-8" style="padding:10px;">
-                <h3>    
+                <h4>    
                         {{ listing.title }}
-                </h3>
+                </h4>
                 <p><strong>Price:</strong> ${{ listing.current_price }}</p>
+                <p><small>Posted on: {{ listing.created_at|date:"F j, Y, g:i a" }}</small></p>
             </div>
-      
         </div>
     {% empty %}
         <p>No active listings yet.</p>
